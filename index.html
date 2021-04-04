@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Parcel Sandbox</title>
+    <meta charset="UTF-8" />
+    <link rel="stylesheet" href="src/styles.css" />
+  </head>
+
+  <body>
+    <div id="card">
+      <form>
+        <fieldset>
+          <legend>Pay</legend>
+          <div class="form-field">
+            <input
+              type="text"
+              name="cardNumber"
+              placeholder="xxxx-xxxx-xxxx-xxxx"
+              onkeypress="appendDashesInCard(event)"
+              pattern="([0-9]{4,4}-){3,3}[0-9]{4,4}"
+              maxlength="19"
+              required
+              id="cardNumber"
+            />
+          </div>
+          <div class="form-field">
+            <input
+              type="text"
+              name="name"
+              placeholder="Name"
+              required
+              onkeypress="isAlphabetic(event)"
+              pattern="[a-zA-Z]+(\s[a-zA-Z]+){0,1}"
+            />
+          </div>
+          <div class="form-group">
+            <div class="form-field">
+              <input
+                type="text"
+                name="exp"
+                placeholder="mm/yyyy"
+                pattern="(0[1-9]|1[012])\/[0-9]{4,4}"
+                required
+                maxlength="7"
+                onkeypress="isProperDateFormat(event)"
+              />
+            </div>
+            <div class="form-field">
+              <input
+                type="password"
+                name="cvv"
+                placeholder="CVV"
+                pattern="[0-9]{3,4}"
+                required
+                maxlength="4"
+              />
+            </div>
+          </div>
+          <div class="form-actions">
+            <button type="submit">Pay</button>
+          </div>
+        </fieldset>
+      </form>
+    </div>
+
+    <script>
+      function isNumeric(event) {
+        const keyCode = event.keyCode;
+        console.log(keyCode);
+        if (keyCode < 48 || keyCode > 57) {
+          return false;
+        }
+        return true;
+      }
+
+      function isAlphabetic(event) {
+        if (!event.key.match(/^[a-zA-Z ]+$/)) {
+          event.preventDefault();
+          return;
+        }
+      }
+
+      function isProperDateFormat(event) {
+        const { keyCode, target } = event;
+        const { value } = target;
+        const [month, year] = value.split("/");
+
+        if ((keyCode < 48 || keyCode > 57) && keyCode !== 8) {
+          event.preventDefault();
+          return;
+        }
+        if (month && month.length === 1 && month === "0" && keyCode === 48) {
+          event.preventDefault();
+          return;
+        }
+        if (month && month.length === 1 && month === "1" && keyCode > 50) {
+          event.preventDefault();
+          return;
+        }
+        if (year && year.length >= 3) {
+          const currentDate = new Date();
+          const currentMonth = currentDate.getMonth() + 1;
+          const currentYear = currentDate.getFullYear();
+          let updatedYear = year + event.key;
+          if (
+            (currentMonth > month && updatedYear <= currentYear) ||
+            (currentMonth < month && updatedYear < currentYear)
+          ) {
+            event.preventDefault();
+            return;
+          }
+        }
+        if (keyCode !== 8 && value.length === 2) {
+          event.target.value = value + "/";
+        }
+      }
+
+      function appendDashesInCard(event) {
+        if (isNumeric(event) === false) {
+          event.preventDefault();
+          return false;
+        }
+        const { value } = event.target;
+        const cardNumber = value.split("-").join("");
+        const cardNumberLength = cardNumber.length;
+        if (
+          cardNumberLength !== 0 &&
+          cardNumberLength < 16 &&
+          cardNumberLength % 4 === 0
+        ) {
+          event.target.value = value + "-";
+        }
+      }
+    </script>
+  </body>
+</html>
